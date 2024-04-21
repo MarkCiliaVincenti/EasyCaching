@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AsyncKeyedLock;
+using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,8 +8,11 @@ namespace EasyCaching.Core.DistributedLock
 {
     public class MemoryLock : IDistributedLock
     {
-        private static readonly RefCounterPool<string, SemaphoreSlim> SemaphoreSlims
-            = new RefCounterPool<string, SemaphoreSlim>();
+        private static readonly AsyncKeyedLocker<string> _locker = new AsyncKeyedLocker<string>(o =>
+        {
+            o.PoolSize = 20;
+            o.PoolInitialFill = 1;
+        });
 
         public string Key { get; }
 
@@ -15,26 +20,27 @@ namespace EasyCaching.Core.DistributedLock
 
         public MemoryLock(string key) => Key = key;
 
-        private SemaphoreSlim _semaphore;
+        private AsyncKeyedLockReleaser<string> _releaser;
 
-        private SemaphoreSlim GetOrCreate()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AsyncKeyedLockReleaser<string> GetOrCreate()
         {
-            if (Volatile.Read(ref _semaphore) != null) throw new DistributedLockException();
+            if (Volatile.Read(ref _releaser) != null) throw new DistributedLockException();
 
             lock (_syncObj)
             {
-                if (Volatile.Read(ref _semaphore) != null) throw new DistributedLockException();
+                if (Volatile.Read(ref _releaser) != null) throw new DistributedLockException();
 
-                var semaphore = SemaphoreSlims.GetOrAdd(Key, _ => new SemaphoreSlim(1, 1));
+                var releaser = _locker.GetOrAdd(Key);
 
-                Volatile.Write(ref _semaphore, semaphore);
+                Volatile.Write(ref _releaser, releaser);
 
-                return semaphore;
+                return releaser;
             }
         }
 
         #region Dispose
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Dispose()
         {
             Dispose(true);
@@ -42,6 +48,7 @@ namespace EasyCaching.Core.DistributedLock
             GC.SuppressFinalize(this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual async ValueTask DisposeAsync()
         {
             await ReleaseAsync();
@@ -49,26 +56,29 @@ namespace EasyCaching.Core.DistributedLock
             GC.SuppressFinalize(this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void Dispose(bool disposing) => Release();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         ~MemoryLock() => Dispose(false);
 
         #endregion Dispose
 
         #region Release
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InternalRelease()
         {
-            var semaphore = Interlocked.Exchange(ref _semaphore, null);
+            var semaphore = Interlocked.Exchange(ref _releaser, null);
 
             if (semaphore == null) return;
 
-            semaphore.Release();
-
-            SemaphoreSlims.TryRemove(Key)?.Dispose();
+            semaphore.Dispose();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void Release() => InternalRelease();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual ValueTask ReleaseAsync()
         {
             InternalRelease();
@@ -77,23 +87,26 @@ namespace EasyCaching.Core.DistributedLock
         }
         #endregion
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LockFail()
         {
-            var semaphore = Interlocked.Exchange(ref _semaphore, null);
+            Interlocked.Exchange(ref _releaser, null);
+            var semaphore = Interlocked.Exchange(ref _releaser, null);
 
             if (semaphore == null) return;
 
-            SemaphoreSlims.TryRemove(Key)?.Dispose();
+            new AsyncKeyedLockTimeoutReleaser<string>(false, semaphore).Dispose();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual bool Lock(int millisecondsTimeout, CancellationToken cancellationToken)
         {
             var semaphore = GetOrCreate();
 
-            var locked = false;
+            bool locked = false;
             try
             {
-                locked = semaphore.Wait(millisecondsTimeout, cancellationToken);
+                locked = semaphore.SemaphoreSlim.Wait(millisecondsTimeout, cancellationToken);
             }
             finally
             {
@@ -103,14 +116,15 @@ namespace EasyCaching.Core.DistributedLock
             return locked;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual async ValueTask<bool> LockAsync(int millisecondsTimeout, CancellationToken cancellationToken)
         {
             var semaphore = GetOrCreate();
 
-            var locked = false;
+            bool locked = false;
             try
             {
-                locked = await semaphore.WaitAsync(millisecondsTimeout, cancellationToken);
+                locked = await semaphore.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(false);
             }
             finally
             {

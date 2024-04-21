@@ -44,4 +44,8 @@
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="AsyncKeyedLock" Version="6.4.2" />
+	</ItemGroup>
+
 </Project>
