@@ -90,7 +90,6 @@ namespace EasyCaching.Core.DistributedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LockFail()
         {
-            Interlocked.Exchange(ref _releaser, null);
             var semaphore = Interlocked.Exchange(ref _releaser, null);
 
             if (semaphore == null) return;
