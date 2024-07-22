@@ -22,10 +22,6 @@
         });
 #endif
 
-#if NETSTANDARD2_0
-        private static readonly Random _random = new Random();
-#endif
-
         public static int GetNext(int min, int max)
         {
             return Instance.Next(min, max);
