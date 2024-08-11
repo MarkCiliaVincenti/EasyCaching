@@ -41,7 +41,7 @@
         /// <summary>
         /// lock
         /// </summary>
-        private readonly object _zkEventLock = new object();
+        private readonly Lock _zkEventLock = new Lock();
 
         /// <summary>
         /// The serializer.
@@ -214,7 +214,7 @@
         /// <returns></returns>
         private async Task ReZkConnect()
         {
-            if (!Monitor.TryEnter(_zkEventLock, _zkBusOptions.ConnectionTimeout))
+            if (!_zkEventLock.TryEnter(_zkBusOptions.ConnectionTimeout))
                 return;
             try
             {
@@ -234,7 +234,7 @@
             }
             finally
             {
-                Monitor.Exit(_zkEventLock);
+                _zkEventLock.Exit();
             }
         }
 

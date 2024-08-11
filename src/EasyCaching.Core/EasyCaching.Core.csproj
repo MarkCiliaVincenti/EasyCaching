@@ -2,7 +2,8 @@
 	<Import Project="../../build/version.props" />
 	<Import Project="../../build/releasenotes.props" />
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net6.0;net9.0</TargetFrameworks>
+		<LangVersion>Preview</LangVersion>
 		<Owners>ncc;Catcher Wong</Owners>
 		<Authors>ncc;Catcher Wong</Authors>
 		<VersionPrefix>$(EasyCachingCorePackageVersion)</VersionPrefix>
@@ -36,12 +37,20 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.0" />
 		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.7.0" />
+		<PackageReference Include="Backport.System.Threading.Lock" Version="1.0.1" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+		<PackageReference Include="Backport.System.Threading.Lock" Version="1.0.1" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
