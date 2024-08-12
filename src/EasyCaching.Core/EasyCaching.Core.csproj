@@ -37,14 +37,14 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.0" />
 		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.7.0" />
-		<PackageReference Include="Backport.System.Threading.Lock" Version="1.0.1" />
+		<PackageReference Include="Backport.System.Threading.Lock" Version="1.0.2" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-		<PackageReference Include="Backport.System.Threading.Lock" Version="1.0.1" />
+		<PackageReference Include="Backport.System.Threading.Lock" Version="1.0.2" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
