@@ -53,12 +53,30 @@
             var flag = _cache.KeyPersist(cacheKey);
             return flag;
         }
-
+        
         public async Task<bool> KeyPersistAsync(string cacheKey)
         {
             ArgumentCheck.NotNullOrWhiteSpace(cacheKey, nameof(cacheKey));
 
             var flag = await _cache.KeyPersistAsync(cacheKey);
+            return flag;
+        }
+
+        public bool KeyCopy(string sourceKey, string destinationKey, bool isReplace = false)
+        {
+            ArgumentCheck.NotNullOrWhiteSpace(sourceKey, nameof(sourceKey));
+            ArgumentCheck.NotNullOrWhiteSpace(destinationKey, nameof(destinationKey));
+
+            var flag = _cache.KeyCopy(sourceKey,destinationKey,_cache.Database,isReplace);
+            return flag;
+        }
+
+        public async Task<bool> KeyCopyAsync(string sourceKey, string destinationKey, bool isReplace = false)
+        {
+            ArgumentCheck.NotNullOrWhiteSpace(sourceKey, nameof(sourceKey));
+            ArgumentCheck.NotNullOrWhiteSpace(destinationKey, nameof(destinationKey));
+
+            var flag = await _cache.KeyCopyAsync(sourceKey,destinationKey,_cache.Database,isReplace);
             return flag;
         }
 

@@ -47,12 +47,36 @@
         /// <param name="cacheKey"></param>
         /// <returns></returns>
         bool KeyPersist(string cacheKey);
+        
         /// <summary>
         /// https://redis.io/commands/persist
         /// </summary>
         /// <param name="cacheKey"></param>
         /// <returns></returns>
         Task<bool> KeyPersistAsync(string cacheKey);
+        
+
+        /// <summary>
+        /// Copies the value from the <paramref name="sourceKey"/> to the specified <paramref name="destinationKey"/>.
+        /// </summary>
+        /// <param name="sourceKey">The key of the source value to copy.</param>
+        /// <param name="destinationKey">The destination key to copy the source to.</param>
+        /// <param name="isReplace">Whether to overwrite an existing values at <paramref name="destinationKey"/>. If <see langword="false"/> and the key exists, the copy will not succeed.</param>
+        /// <returns><see langword="true"/> if key was copied. <see langword="false"/> if key was not copied.</returns>
+        /// <remarks>https://redis.io/commands/copy</remarks>
+        bool KeyCopy(string sourceKey, string destinationKey, bool isReplace = false);
+
+
+        /// <summary>
+        /// Copies the value from the <paramref name="sourceKey"/> to the specified <paramref name="destinationKey"/>.
+        /// </summary>
+        /// <param name="sourceKey">The key of the source value to copy.</param>
+        /// <param name="destinationKey">The destination key to copy the source to.</param>
+        /// <param name="isReplace">Whether to overwrite an existing values at <paramref name="destinationKey"/>. If <see langword="false"/> and the key exists, the copy will not succeed.</param>
+        /// <returns><see langword="true"/> if key was copied. <see langword="false"/> if key was not copied.</returns>
+        /// <remarks>https://redis.io/commands/copy</remarks>
+        Task<bool> KeyCopyAsync(string sourceKey, string destinationKey, bool isReplace = false);
+        
         /// <summary>
         /// 
         /// </summary>

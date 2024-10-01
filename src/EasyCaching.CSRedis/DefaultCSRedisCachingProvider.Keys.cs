@@ -1,4 +1,6 @@
-﻿namespace EasyCaching.CSRedis
+﻿using System;
+
+namespace EasyCaching.CSRedis
 {
     using EasyCaching.Core;
     using System.Collections.Generic;
@@ -56,6 +58,15 @@
             return flag;
         }
 
+        public bool KeyCopy(string sourceKey, string destinationKey, bool isReplace = false)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Task<bool> KeyCopyAsync(string sourceKey, string destinationKey, bool isReplace = false)
+        {
+            throw new NotSupportedException();
+        }
         public bool KeyExists(string cacheKey)
         {
             ArgumentCheck.NotNullOrWhiteSpace(cacheKey, nameof(cacheKey));
